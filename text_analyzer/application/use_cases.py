@@ -1,7 +1,8 @@
+from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
 from domain.types import TextStats, AnalysisResult, Language, Polarity
 from domain.interfaces import SyllableCounter, SentimentAnalyzer, LanguageDetector
+from infrastructure.language_detector import detect_language
 from infrastructure.syllable_counters import split_sentences, split_words, get_syllable_counter
-
 
 def compute_stats(text: str, syllable_counter: SyllableCounter) -> TextStats:
   sentences = split_sentences(text)
@@ -23,11 +24,6 @@ def compute_stats(text: str, syllable_counter: SyllableCounter) -> TextStats:
     avg_word_syllables=avg_word_syllables,
   )
 
-def flesch_index(stats: TextStats, lang: Language) -> float:
-  return None
-
-def interpret_flesch(score: float, lang: Language) -> str:
-  return None
 
 def analyze_text(text: str,
                  lang_detector: LanguageDetector,
@@ -35,14 +31,19 @@ def analyze_text(text: str,
 
   lang = lang_detector(text)
   syllable_counter = get_syllable_counter(lang)
-
   stats = compute_stats(text, syllable_counter)
+  flesch = flesch_index(stats, lang)
+  try:
+    flesch_kinc = flesch_kincaid(stats, lang)
+  except ValueError:
+    flesch_kinc = None
+  interpret = interpret_flesch(stats, lang)
 
   return AnalysisResult(
     language=lang,
-    flesch_index=0.0,
-    flesch_kincaid=0.0,
-    interpretation="Not calculated yet",
+    flesch_index=flesch,
+    flesch_kincaid=flesch_kinc,
+    interpretation=interpret,
     polarity=Polarity.NEUTRAL,
     subjectivity=0.0,
     lexical_diversity=0.0,
