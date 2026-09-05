@@ -3,10 +3,10 @@ from domain.interfaces import LanguageDetector, SentimentAnalyzer
 from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
 from infrastructure.language_detector import detect_language
 from infrastructure.syllable_counters import get_syllable_counter
-
+from infrastructure.sentiment import analyze_sentiment_textblob
 
 def main() -> None:
-  text = "Это достаточно длинный русский текст для проверки программы. Он содержит несколько предложений, разные слова и знаки препинания! Программа должна определить русский язык и посчитать слоги."
+  text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
 
   try:
     language = detect_language(text)
@@ -19,10 +19,11 @@ def main() -> None:
 
     flesch = flesch_index(stats, language)
     interpret = interpret_flesch(stats, language)
+    polar, subj = analyze_sentiment_textblob(text)
 
     try:
       flesch_kin = flesch_kincaid(stats, language)
-    except ValueError as error:
+    except ValueError:
       flesch_kin = None
 
     if language.value == 1:
@@ -45,6 +46,8 @@ def main() -> None:
     else:
       print("Flesch-Kincaid index: unavailable")
     print("Interpret Flesch: "f"{interpret}")
+    print("Polarity: "f"{polar.value}")
+    print("Subjectivity: "f"{subj}")
 
   except ValueError as error:
     print(f"Error: {error}")
