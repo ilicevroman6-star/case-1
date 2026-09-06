@@ -1,9 +1,22 @@
+from fastapi import FastAPI
 from application.use_cases import compute_stats, analyze_text
 from domain.interfaces import LanguageDetector, SentimentAnalyzer
 from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
 from infrastructure.language_detector import detect_language
 from infrastructure.syllable_counters import get_syllable_counter
 from infrastructure.sentiment import analyze_sentiment_textblob
+
+
+app = FastAPI(
+    title="Text Analysis Service",
+    version="0.1.0",
+    description="Synchronous text analysis service"
+)
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service": "text-analyzer"}
+
 
 def main() -> None:
   text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"

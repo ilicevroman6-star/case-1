@@ -1,5 +1,4 @@
 from typing import Protocol
-
 from domain.types import Language, Polarity
 
 
