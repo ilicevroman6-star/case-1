@@ -55,3 +55,7 @@ def analyze_text(text: str,
     rare_word_density=0.0,
     stats=stats,
   )
+
+
+def analyze_batch(texts: list[str], **deps) -> list[AnalysisResult]:
+  return [analyze_text(t, **deps) for t in texts]
