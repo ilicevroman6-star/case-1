@@ -4,13 +4,13 @@ from domain.types import Language
 
 DetectorFactory.seed = 0
 
-mapping = {
+MAPPING = {
     "en": Language.EN,
     "ru": Language.RU,
     "de": Language.DE,
     "fr": Language.FR,
 }
-def detect_language(text: str) -> Language:
+def detectLanguage(text: str) -> Language:
   """
   It detects the language of the text using the langdetect library.
   :param text: text to be analyzed
@@ -22,11 +22,11 @@ def detect_language(text: str) -> Language:
     raise ValueError('Cannot detect language')
 
   try:
-    detected_language = detect(text)
+    detectedLanguage = detect(text)
   except LangDetectException as error:
     raise ValueError('Cannot detect language') from error
 
   try:
-    return mapping[detected_language]
+    return MAPPING[detectedLanguage]
   except KeyError as error:
       raise ValueError('Detected language is not supported') from error

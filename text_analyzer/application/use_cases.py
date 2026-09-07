@@ -1,61 +1,61 @@
-from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
-from domain.types import TextStats, AnalysisResult, Language, Polarity
-from domain.interfaces import SyllableCounter, SentimentAnalyzer, LanguageDetector
-from infrastructure.language_detector import detect_language
-from infrastructure.syllable_counters import split_sentences, split_words, get_syllable_counter
-from infrastructure.sentiment import analyze_sentiment_textblob
+from infrastructure.flesch_calculators import fleschIndex, fleschKincaid, interpretFlesch
+from domain.types import Text_Stats, Analysis_Result, Language, Polarity
+from domain.interfaces import Syllable_Counter, Sentiment_Analyzer, Language_Detector
+from infrastructure.language_detector import detectLanguage
+from infrastructure.syllable_counters import splitSentences, splitWords, getSyllableCounter
+from infrastructure.sentiment import analyzeSentimentTextblob
 
-def compute_stats(text: str, syllable_counter: SyllableCounter) -> TextStats:
-  sentences = split_sentences(text)
-  words = split_words(text)
-  total_syllables = sum(syllable_counter(w) for w in words)
+def computeStats(text: str, syllableCounter: Syllable_Counter) -> Text_Stats:
+  sentences = splitSentences(text)
+  words = splitWords(text)
+  totalSyllables = sum(syllableCounter(w) for w in words)
 
-  sentence_count = len(sentences)
-  word_count = len(words)
-  syllable_count = total_syllables
+  sentenceCount = len(sentences)
+  wordCount = len(words)
+  syllableCount = totalSyllables
 
-  avg_sentence_length = word_count / sentence_count if sentence_count > 0 else 0
-  avg_word_syllables = syllable_count / word_count if word_count > 0 else 0
+  avgSentenceLength = wordCount / sentenceCount if sentenceCount > 0 else 0
+  avgWordSyllables = syllableCount / wordCount if wordCount > 0 else 0
 
-  return TextStats(
-    sentence_count=sentence_count,
-    word_count=word_count,
-    syllable_count=syllable_count,
-    avg_sentence_length=avg_sentence_length,
-    avg_word_syllables=avg_word_syllables,
+  return Text_Stats(
+    sentenceCount=sentenceCount,
+    wordCount=wordCount,
+    syllableCount=syllableCount,
+    avgSentenceLength=avgSentenceLength,
+    avgWordSyllables=avgWordSyllables,
   )
 
 
-def analyze_text(text: str,
-                 lang_detector: LanguageDetector,
-                 syllable_counter: SyllableCounter,
-                 sentiment_analyzer: SentimentAnalyzer) -> AnalysisResult:
+def analyzeText(text: str,
+                 lang_detector: Language_Detector,
+                 syllableCounter: Syllable_Counter,
+                 sentimentAnalyzer: Sentiment_Analyzer) -> Analysis_Result:
 
   lang = lang_detector(text)
-  syllable_counter = get_syllable_counter(lang)
-  stats = compute_stats(text, syllable_counter)
-  flesch = flesch_index(stats, lang)
+  syllable_counter = getSyllableCounter(lang)
+  stats = computeStats(text, syllable_counter)
+  flesch = fleschIndex(stats, lang)
 
   try:
-    flesch_kinc = flesch_kincaid(stats, lang)
+    flesch_kinc = fleschKincaid(stats, lang)
   except ValueError:
     flesch_kinc = None
-  interpret = interpret_flesch(stats, lang)
+  interpret = interpretFlesch(stats, lang)
 
-  polar, subj = analyze_sentiment_textblob(text)
+  polar, subj = analyzeSentimentTextblob(text)
 
-  return AnalysisResult(
+  return Analysis_Result(
     language=lang,
-    flesch_index=flesch,
-    flesch_kincaid=flesch_kinc,
+    fleschIndex=flesch,
+    fleschKincaid=flesch_kinc,
     interpretation=interpret,
     polarity=polar.value,
     subjectivity=subj,
-    lexical_diversity=0.0,
-    rare_word_density=0.0,
+    lexicalDiversity=0.0,
+    rareWordDensity=0.0,
     stats=stats,
   )
 
 
-def analyze_batch(texts: list[str], **deps) -> list[AnalysisResult]:
-  return [analyze_text(t, **deps) for t in texts]
+def analyzeBatch(texts: list[str], **deps) -> list[Analysis_Result]:
+  return [analyzeText(t, **deps) for t in texts]

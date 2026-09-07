@@ -1,13 +1,13 @@
-from domain.types import Language, TextStats
+from domain.types import Language, Text_Stats
 
-fleshCoefficients: dict[Language, tuple[float,float,float]] = {
+FLESCHCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
   Language.EN: (206.835, 1.015, 84.6),
   Language.RU: (206.835, 1.3, 60.1),
   Language.FR: (207, 1.015, 73.6),
   Language.DE: (180, 1.0, 58.5)
 }
 
-def flesch_index(stats: TextStats, lang: Language) -> float:
+def fleschIndex(stats: Text_Stats, lang: Language) -> float:
   """
   calculates the flesch-index value of a given text and lang
   :param stats: statistics returned by analyze_text
@@ -19,41 +19,41 @@ def flesch_index(stats: TextStats, lang: Language) -> float:
   0...30 - very hard
   """
 
-  if stats.word_count == 0 or stats.sentence_count == 0:
+  if stats.wordCount == 0 or stats.sentenceCount == 0:
     return 0
 
   try:
-    base, sentence_factor, syllable_factor = fleshCoefficients[lang]
+    base, sentenceFactor, syllableFactor = FLESCHCOEFFICIENTS[lang]
   except KeyError as error:
       raise ValueError('Unknown language') from error
 
-  score = base - sentence_factor * stats.avg_sentence_length - syllable_factor * stats.avg_word_syllables
+  score = base - sentenceFactor * stats.avgSentenceLength - syllableFactor * stats.avgWordSyllables
 
   return score
 
-fleschKincaidCoefficients: dict[Language, tuple[float,float,float]] = {
+FLESCHKINCAIDCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
   Language.EN: (-15.59, 0.39, 11.8)
 }
 
-def flesch_kincaid(stats: TextStats, lang: Language) -> float:
-  if stats.word_count == 0 or stats.sentence_count == 0:
+def fleschKincaid(stats: Text_Stats, lang: Language) -> float:
+  if stats.wordCount == 0 or stats.sentenceCount == 0:
     return 0
 
   try:
-    base, sentence_factor, syllable_factor = fleschKincaidCoefficients[lang]
+    base, sentenceFactor, syllableFactor = FLESCHKINCAIDCOEFFICIENTS[lang]
   except KeyError as error:
     raise ValueError(f"Flesch-Kincaid Grade level if defined only for English language. "
                      f"Unsupposed language: {lang}") from error
-  score = sentence_factor * stats.avg_sentence_length + syllable_factor * stats.avg_word_syllables + base
+  score = sentenceFactor * stats.avgSentenceLength + syllableFactor * stats.avgWordSyllables + base
 
   return score
 
-def interpret_flesch(score: float, lang: Language) -> str:
-  if 90 < flesch_index(score, lang) < 100:
+def interpretFlesch(score: float, lang: Language) -> str:
+  if 90 < fleschIndex(score, lang) < 100:
     return 'Easy'
-  elif 60 < flesch_index(score, lang) < 89:
+  elif 60 < fleschIndex(score, lang) < 89:
     return 'Medium'
-  elif 30 < flesch_index(score, lang) < 59:
+  elif 30 < fleschIndex(score, lang) < 59:
     return 'Hard'
   else:
     return 'Very hard'

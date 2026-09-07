@@ -3,14 +3,14 @@ from typing import Protocol
 from domain.types import Language, Polarity
 
 
-class SyllableCounter(Protocol):
+class Syllable_Counter(Protocol):
   def __call__(self, word: str) -> int:
     ...
 
-class SentimentAnalyzer(Protocol):
+class Sentiment_Analyzer(Protocol):
   def __call__(self, text: str) -> tuple[Polarity, float]:
     ...
 
-class LanguageDetector(Protocol):
+class Language_Detector(Protocol):
   def __call__(self, text: str) -> Language:
     ...

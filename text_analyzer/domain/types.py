@@ -13,21 +13,21 @@ class Polarity(Enum):
   NEGATIVE = "negative"
 
 @dataclass(frozen=True)
-class TextStats:
-  sentence_count: int
-  word_count: int
-  syllable_count: int
-  avg_sentence_length: float
-  avg_word_syllables: float
+class Text_Stats:
+  sentenceCount: int
+  wordCount: int
+  syllableCount: int
+  avgSentenceLength: float
+  avgWordSyllables: float
 
 @dataclass(frozen=True)
-class AnalysisResult:
+class Analysis_Result:
     language: Language
-    flesch_index: float
-    flesch_kincaid: float
+    fleschIndex: float
+    fleschKincaid: float
     interpretation: str
     polarity: Polarity
     subjectivity: float  # 0..1
-    lexical_diversity: float
-    rare_word_density: float
-    stats: TextStats
+    lexicalDiversity: float
+    rareWordDensity: float
+    stats: Text_Stats
