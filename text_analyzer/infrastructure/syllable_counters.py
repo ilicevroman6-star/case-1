@@ -1,20 +1,20 @@
 import re
 from typing import List
 
-from domain.interfaces import SyllableCounter
+from domain.interfaces import Syllable_Counter
 from domain.types import Language
 
-def split_sentences(text: str) -> List[str]:
+def splitSentences(text: str) -> List[str]:
   return [
     sentence.strip()
     for sentence in re.split(r"[.!?…]+", text)
     if sentence.strip()
     ]
 
-def split_words(sentence: str) -> List[str]:
+def splitWords(sentence: str) -> List[str]:
   return re.findall(r"[^\W\d_]+", sentence, flags=re.UNICODE)
 
-def letters_only(word: str) -> str:
+def lettersOnly(word: str) -> str:
   """
   :return:
   removes everything except letters
@@ -23,26 +23,26 @@ def letters_only(word: str) -> str:
   """
   return "".join(char for char in word.lower() if char.isalpha())
 
-def count_syllables_ru(word: str) -> int:
+def countSyllablesRu(word: str) -> int:
   """
   counting syllables russian
   :param word: word
   :return: count of syllables
   """
-  normalized = letters_only(word)
+  normalized = lettersOnly(word)
   if not normalized:
     return 0
 
   vowels = "аеёиоуыэюя"
   return sum(char in vowels for char in normalized)
 
-def count_syllables_en(word: str) -> int:
+def countSyllablesEn(word: str) -> int:
   """
   counting syllables english
   :param word: word
   :return: count of syllables
   """
-  normalized = letters_only(word)
+  normalized = lettersOnly(word)
   if not normalized:
     return 0
 
@@ -66,13 +66,13 @@ def count_syllables_en(word: str) -> int:
 
   return max(1, syllables)
 
-def count_syllables_de(word: str) -> int:
+def countSyllablesDe(word: str) -> int:
   """
   counting syllables in german
   :param word: word
   :return: count of syllables
   """
-  normalized = letters_only(word)
+  normalized = lettersOnly(word)
 
   if not normalized:
     return 0
@@ -80,13 +80,13 @@ def count_syllables_de(word: str) -> int:
   groups = re.findall(r"[aeiouyäöü]+", normalized)
   return max(1, len(groups))
 
-def count_syllables_fr(word: str) -> int:
+def countSyllablesFr(word: str) -> int:
   """
   counting syllables in french
   :param word: word
   :return: count of syllables
   """
-  normalized = letters_only(word)
+  normalized = lettersOnly(word)
 
   if not normalized:
     return 0
@@ -101,17 +101,17 @@ def count_syllables_fr(word: str) -> int:
 
   return max(1, syllables)
 
-def get_syllable_counter(lang: Language) -> SyllableCounter:
+def getSyllableCounter(lang: Language) -> Syllable_Counter:
   """
   get syllable count
   :param lang: language
   :return: syllable count
   """
-  counters: dict[Language, SyllableCounter] = {
-    Language.EN : count_syllables_en,
-    Language.RU : count_syllables_ru,
-    Language.DE : count_syllables_de,
-    Language.FR : count_syllables_fr,
+  counters: dict[Language, Syllable_Counter] = {
+    Language.EN : countSyllablesEn,
+    Language.RU : countSyllablesRu,
+    Language.DE : countSyllablesDe,
+    Language.FR : countSyllablesFr,
   }
 
   try:
