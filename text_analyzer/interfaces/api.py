@@ -22,7 +22,11 @@ class BatchRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
-  return templates.TemplateResponse("index.html", {"request": request})
+  return templates.TemplateResponse(
+    request=request,
+    name="index.html",
+    context={}  # Если нужно передать другие переменные, пишите их сюда
+  )
 
 @app.post("/analyze")
 def analyze_endpoint(request: TextRequest):
