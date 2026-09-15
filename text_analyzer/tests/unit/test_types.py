@@ -1,5 +1,6 @@
 from domain.types import Language, Polarity, TextStats
 
+
 def test_language_enum():
     assert Language.EN.value == 1
     assert Language.RU.value == 2

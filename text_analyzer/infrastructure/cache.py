@@ -1,7 +1,9 @@
 import hashlib
 import json
+
 import redis
 from domain.types import AnalysisResult
+
 
 def text_hash(text: str) -> str:
   return hashlib.sha256(text.encode()).hexdigest()

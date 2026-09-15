@@ -1,9 +1,10 @@
+from domain.interfaces import LanguageDetector, SentimentAnalyzer, SyllableCounter
+from domain.types import AnalysisResult, Language, Polarity, TextStats
 from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
-from domain.types import TextStats, AnalysisResult, Language, Polarity
-from domain.interfaces import SyllableCounter, SentimentAnalyzer, LanguageDetector
 from infrastructure.language_detector import detect_language
-from infrastructure.syllable_counters import split_sentences, split_words, get_syllable_counter
 from infrastructure.sentiment import analyze_sentiment_textblob
+from infrastructure.syllable_counters import get_syllable_counter, split_sentences, split_words
+
 
 def compute_stats(text: str, syllable_counter: SyllableCounter) -> TextStats:
   sentences = split_sentences(text)

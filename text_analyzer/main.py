@@ -1,11 +1,10 @@
-from fastapi import FastAPI
-from application.use_cases import compute_stats, analyze_text
+from application.use_cases import analyze_text, compute_stats
 from domain.interfaces import LanguageDetector, SentimentAnalyzer
+from fastapi import FastAPI
 from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
 from infrastructure.language_detector import detect_language
-from infrastructure.syllable_counters import get_syllable_counter
 from infrastructure.sentiment import analyze_sentiment_textblob
-
+from infrastructure.syllable_counters import get_syllable_counter
 
 app = FastAPI(
     title="Text Analysis Service",

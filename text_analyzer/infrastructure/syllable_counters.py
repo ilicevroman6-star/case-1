@@ -4,6 +4,7 @@ from typing import List
 from domain.interfaces import SyllableCounter
 from domain.types import Language
 
+
 def split_sentences(text: str) -> List[str]:
   return [
     sentence.strip()
