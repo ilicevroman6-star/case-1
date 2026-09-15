@@ -1,40 +1,29 @@
-from application.use_cases import analyze_text, compute_stats
-from domain.interfaces import LanguageDetector, SentimentAnalyzer
-from fastapi import FastAPI
-from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
-from infrastructure.language_detector import detect_language
-from infrastructure.sentiment import analyze_sentiment_textblob
-from infrastructure.syllable_counters import get_syllable_counter
-
-app = FastAPI(
-    title="Text Analysis Service",
-    version="0.1.0",
-    description="Synchronous text analysis service"
-)
-
-@app.get("/health")
-async def health():
-    return {"status": "ok", "service": "text-analyzer"}
+from application.use_cases import analyzeText, computeStats
+from domain.interfaces import Language_Detector, Sentiment_Analyzer
+from infrastructure.flesch_calculators import fleschIndex, fleschKincaid, interpretFlesch
+from infrastructure.language_detector import detectLanguage
+from infrastructure.sentiment import analyzeSentimentTextblob
+from infrastructure.syllable_counters import getSyllableCounter
 
 
 def main() -> None:
   text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
 
   try:
-    language = detect_language(text)
-    counter = get_syllable_counter(language)
+    language = detectLanguage(text)
+    counter = getSyllableCounter(language)
 
-    stats = compute_stats(
+    stats = computeStats(
       text=text,
-      syllable_counter=counter,
+      syllableCounter=counter,
     )
 
-    flesch = flesch_index(stats, language)
-    interpret = interpret_flesch(stats, language)
-    polar, subj = analyze_sentiment_textblob(text)
+    flesch = fleschIndex(stats, language)
+    interpret = interpretFlesch(stats, language)
+    polar, subj = analyzeSentimentTextblob(text)
 
     try:
-      flesch_kin = flesch_kincaid(stats, language)
+      flesch_kin = fleschKincaid(stats, language)
     except ValueError:
       flesch_kin = None
 
@@ -47,11 +36,11 @@ def main() -> None:
     if language == 4:
       print("Language: French")
 
-    print(f"Count of sentences: {stats.sentence_count}")
-    print(f"Count of words: {stats.word_count}")
-    print(f"Count of syllables: {stats.syllable_count}")
-    print("Average sentence length: "f"{stats.avg_sentence_length:.2f} words")
-    print("Average syllable count in words: "f"{stats.avg_word_syllables:.2f}")
+    print(f"Count of sentences: {stats.sentenceCount}")
+    print(f"Count of words: {stats.wordCount}")
+    print(f"Count of syllables: {stats.syllableCount}")
+    print("Average sentence length: "f"{stats.avgSentenceLength:.2f} words")
+    print("Average syllable count in words: "f"{stats.avgWordSyllables:.2f}")
     print("Flesch index: "f"{flesch:.2f}")
     if flesch_kin is not None:
       print("Flesch-Kincaid index: "f"{flesch_kin:.2f}")

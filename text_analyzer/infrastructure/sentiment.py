@@ -1,20 +1,17 @@
-"""import asyncio
-
-from langdetect import language
-from textblob import TextBlob
+from deep_translator import GoogleTranslator
 from domain.types import Polarity
 from googletrans import Translator
+from langdetect import language
+from textblob import TextBlob
 
 translator = Translator()
 
-async def translate_to_english(text: str) -> str:
-    async with Translator() as translator:
-        translated = await translator.translate(text, dest="en")
-    return translated.text
+def translateToEnglish(text: str) -> str:
+    return GoogleTranslator(source='auto', target='en').translate(text)
 
-def analyze_sentiment_textblob(text: str) -> tuple[Polarity, float]:
-    translated_text = asyncio.run(translate_to_english(text))
-    blob = TextBlob(translated_text)
+def analyzeSentimentTextblob(text: str) -> tuple[Polarity, float]:
+    translatedText = translateToEnglish(text)
+    blob = TextBlob(translatedText)
     polarity = blob.sentiment.polarity
     subjectivity = blob.sentiment.subjectivity
     if polarity > 0.1:
@@ -23,12 +20,4 @@ def analyze_sentiment_textblob(text: str) -> tuple[Polarity, float]:
         p = Polarity.NEGATIVE
     else:
         p = Polarity.NEUTRAL
-    return p, subjectivity"""
-"""Анализатор тональности (заглушка для тестов)."""
-
-def analyze_sentiment_textblob(text: str):
-    """
-    Анализирует тональность текста.
-    Временно возвращает заглушку, чтобы тесты проходили.
-    """
-    return "neutral", 0.5
+    return p, subjectivity
