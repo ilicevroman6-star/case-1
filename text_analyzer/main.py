@@ -11,15 +11,15 @@ from structlog import get_logger
 setup_logging()
 logger = get_logger()
 app = FastAPI(
-    title="Text Analysis Service",
-    version="0.1.0",
-    description="Synchronous text analysis service"
+  title="Text Analysis Service",
+  version="0.1.0",
+  description="Synchronous text analysis service"
 )
 
 @app.get("/health")
 async def health():
-    logger.info("Health check", service="text-analyzer")
-    return {"status": "ok", "service": "text-analyzer"}
+  logger.info("Health check", service="text-analyzer")
+  return {"status": "ok", "service": "text-analyzer"}
 
 def main() -> None:
   text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
