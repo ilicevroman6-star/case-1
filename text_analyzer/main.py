@@ -7,6 +7,8 @@ from infrastructure.syllable_counters import getSyllableCounter
 from fastapi import FastAPI
 from logging_config import setup_logging
 from structlog import get_logger
+from prometheus_client import make_asgi_app
+from metrics import REQUEST_COUNT, REQUEST_LATENCY, ERROR_COUNT
 
 setup_logging()
 logger = get_logger()
@@ -16,8 +18,12 @@ app = FastAPI(
   description="Synchronous text analysis service"
 )
 
+metrics_app = make_asgi_app()
+app.mount('/metrics', metrics_app)
+
 @app.get("/health")
 async def health():
+  REQUEST_COUNT.labels(method='GET', endpoint='/health', status='200').inc()
   logger.info("Health check", service="text-analyzer")
   return {"status": "ok", "service": "text-analyzer"}
 
