@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
+
 class Language(Enum):
   EN = auto()
   RU = auto()

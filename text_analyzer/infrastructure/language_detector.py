@@ -1,6 +1,5 @@
-from langdetect import detect, LangDetectException, DetectorFactory
-
 from domain.types import Language
+from langdetect import DetectorFactory, LangDetectException, detect
 
 DetectorFactory.seed = 0
 
