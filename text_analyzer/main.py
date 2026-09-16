@@ -5,7 +5,11 @@ from infrastructure.language_detector import detectLanguage
 from infrastructure.sentiment import analyzeSentimentTextblob
 from infrastructure.syllable_counters import getSyllableCounter
 from fastapi import FastAPI
+from logging_config import setup_logging
+from structlog import get_logger
 
+setup_logging()
+logger = get_logger()
 app = FastAPI(
     title="Text Analysis Service",
     version="0.1.0",
@@ -14,6 +18,7 @@ app = FastAPI(
 
 @app.get("/health")
 async def health():
+    logger.info("Health check", service="text-analyzer")
     return {"status": "ok", "service": "text-analyzer"}
 
 def main() -> None:
