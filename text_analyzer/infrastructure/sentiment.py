@@ -1,10 +1,7 @@
 from deep_translator import GoogleTranslator
 from domain.types import Polarity
-from googletrans import Translator
-from langdetect import language
 from textblob import TextBlob
 
-translator = Translator()
 
 def translateToEnglish(text: str) -> str:
     return GoogleTranslator(source='auto', target='en').translate(text)
