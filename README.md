@@ -1,18 +1,35 @@
-# case-1
-# Text Analysis Service
+# case-1 — Text Analysis Service
 
-A service for text analysis: Flesch Reading Ease, sentiment analysis, and statistics.
+Сервис для анализа текста: индекс Флеша, тональность и статистика.
 
-## Tech Stack
+## Технологии
 
 - Python 3.11+
 - FastAPI
-- Redis (cache)
+- Redis (кэш)
 - Docker
-- Pytest (tests)
+- Pytest (тесты)
+- structlog (логирование)
+- Prometheus (метрики)
 
-## Local Setup
+## Запуск локально
 
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+1. Установите зависимости:
+pip install -r requirements.txt
+
+2. Запустите сервер:
+cd text_analyzer
+py -m uvicorn main:app --reload
+
+3. Откройте в браузере:
+- http://localhost:8000/health — проверка работы
+- http://localhost:8000/docs — Swagger-документация
+- http://localhost:8000/metrics — метрики Prometheus
+
+## Запуск через Docker
+
+docker-compose up --build
+
+## Запуск тестов
+
+py -m pytest text_analyzer/tests/ -v
