@@ -1,4 +1,4 @@
-from domain.types import Language, Polarity, TextStats
+from domain.types import Language, Polarity, Text_Stats
 
 
 def test_language_enum():
@@ -11,11 +11,13 @@ def test_polarity_enum():
     assert Polarity.POSITIVE.value == "positive"
 
 def test_text_stats_creation():
-    stats = TextStats(
-        sentence_count=2,
-        word_count=10,
-        syllable_count=15,
-        avg_sentence_length=5.0,
-        avg_word_syllables=1.5
+    stats = Text_Stats(
+        sentenceCount=2,
+        wordCount=10,
+        syllableCount=15,
+        avgSentenceLength=5.0,
+        avgWordSyllables=1.5
     )
-    assert stats.sentence_count == 2
+    assert stats.sentenceCount == 2
+    assert stats.wordCount == 10
+    assert stats.syllableCount == 15
