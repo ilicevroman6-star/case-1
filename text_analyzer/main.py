@@ -1,16 +1,17 @@
-from application.use_cases import computeStats, analyzeText, fleschKincaid
-from domain.interfaces import Language_Detector, Sentiment_Analyzer, Syllable_Counter
-from infrastructure.flesch_calculators import fleschIndex, interpretFlesch
+from application.use_cases import computeStats, analyzeText
+from domain.interfaces import Language_Detector, Sentiment_Analyzer
+from infrastructure.flesch_calculators import fleschIndex, fleschKincaid, interpretFlesch
 from infrastructure.language_detector import detectLanguage
 from infrastructure.syllable_counters import getSyllableCounter
-from infrastructure.sentiment import analyzeSentimentTextblob, translateToEnglish
+from infrastructure.sentiment import analyzeSentimentTextblob
 
 def main() -> None:
-  text = "J’adore flâner dans les rues de Paris au printemps. Le soleil brille doucement et les arbres sont couverts de fleurs. Je m’arrête souvent pour admirer la façade des vieilles maisons. Parfois, je prends un café dans une petite brasserie accueillante. C’est à ce moment-là que je me sens vraiment heureux."
+  text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
 
   try:
     language = detectLanguage(text)
     counter = getSyllableCounter(language)
+
     stats = computeStats(
       text=text,
       syllableCounter=counter,
@@ -20,8 +21,10 @@ def main() -> None:
     interpret = interpretFlesch(stats, language)
     polar, subj = analyzeSentimentTextblob(text)
 
-    translatedText = translateToEnglish(text)
-    flesch_kin = fleschKincaid(translatedText)
+    try:
+      flesch_kin = fleschKincaid(stats, language)
+    except ValueError:
+      flesch_kin = None
 
     if language.value == 1:
       print("Language: English")
@@ -29,7 +32,7 @@ def main() -> None:
       print("Language: Russian")
     if language.value == 3:
       print("Language: German")
-    if language.value == 4:
+    if language == 4:
       print("Language: French")
 
     print(f"Count of sentences: {stats.sentenceCount}")

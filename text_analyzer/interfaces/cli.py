@@ -1,9 +1,11 @@
-import click
 import json
+
+import click
 from application.use_cases import analyze_text
 from infrastructure.language_detector import detect_language
-from infrastructure.syllable_counters import get_syllable_counter
 from infrastructure.sentiment import analyze_sentiment_textblob
+from infrastructure.syllable_counters import get_syllable_counter
+
 
 @click.command()
 @click.option('--text', help='Text to analyze')
@@ -14,7 +16,6 @@ def main(text, file, batch_file, output):
   if file:
     text = file.read()
   if batch_file:
-    import json
     texts = json.load(batch_file)
     # обработать пакет
     # ...
