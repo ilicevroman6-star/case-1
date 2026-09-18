@@ -1,9 +1,11 @@
-from infrastructure.flesch_calculators import fleschIndex, fleschKincaid, interpretFlesch
+from infrastructure.flesch_calculators import fleschIndex, interpretFlesch
 from domain.types import Text_Stats, Analysis_Result, Language, Polarity
 from domain.interfaces import Syllable_Counter, Sentiment_Analyzer, Language_Detector
 from infrastructure.language_detector import detectLanguage
-from infrastructure.syllable_counters import splitSentences, splitWords, getSyllableCounter
+from infrastructure.syllable_counters import splitSentences, splitWords, getSyllableCounter, countSyllablesEn
 from infrastructure.sentiment import analyzeSentimentTextblob
+from infrastructure.syllable_counters import getSyllableCounter
+from functools import lru_cache
 
 def computeStats(text: str, syllableCounter: Syllable_Counter) -> Text_Stats:
   sentences = splitSentences(text)
@@ -25,21 +27,27 @@ def computeStats(text: str, syllableCounter: Syllable_Counter) -> Text_Stats:
     avgWordSyllables=avgWordSyllables,
   )
 
+FLESCHKINCAIDCOEFFICIENTS = (-15.59, 0.39, 11.8)
 
+
+def fleschKincaid(text: str) -> float:
+  stats = computeStats(text, getSyllableCounter(Language.EN))
+  base, sentenceFactor, syllableFactor = FLESCHKINCAIDCOEFFICIENTS
+  scores = base + sentenceFactor * stats.avgSentenceLength + syllableFactor * stats.avgWordSyllables
+  return scores
+
+@lru_cache(maxsize=None)
 def analyzeText(text: str,
                  lang_detector: Language_Detector,
                  syllableCounter: Syllable_Counter,
                  sentimentAnalyzer: Sentiment_Analyzer) -> Analysis_Result:
 
-  lang = lang_detector(text)
+  lang = detectLanguage(text)
   syllable_counter = getSyllableCounter(lang)
   stats = computeStats(text, syllable_counter)
   flesch = fleschIndex(stats, lang)
 
-  try:
-    flesch_kinc = fleschKincaid(stats, lang)
-  except ValueError:
-    flesch_kinc = None
+  flesch_kinc = fleschKincaid(text)
   interpret = interpretFlesch(stats, lang)
 
   polar, subj = analyzeSentimentTextblob(text)
@@ -55,7 +63,6 @@ def analyzeText(text: str,
     rareWordDensity=0.0,
     stats=stats,
   )
-
 
 def analyzeBatch(texts: list[str], **deps) -> list[Analysis_Result]:
   return [analyzeText(t, **deps) for t in texts]

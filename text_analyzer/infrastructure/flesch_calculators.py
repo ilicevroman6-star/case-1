@@ -1,4 +1,7 @@
+from domain.interfaces import Syllable_Counter
 from domain.types import Language, Text_Stats
+from infrastructure.sentiment import translateToEnglish
+from infrastructure.syllable_counters import getSyllableCounter
 
 FLESCHCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
   Language.EN: (206.835, 1.015, 84.6),
@@ -6,7 +9,7 @@ FLESCHCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
   Language.FR: (207, 1.015, 73.6),
   Language.DE: (180, 1.0, 58.5)
 }
-
+text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
 def fleschIndex(stats: Text_Stats, lang: Language) -> float:
   """
   calculates the flesch-index value of a given text and lang
@@ -28,23 +31,6 @@ def fleschIndex(stats: Text_Stats, lang: Language) -> float:
       raise ValueError('Unknown language') from error
 
   score = base - sentenceFactor * stats.avgSentenceLength - syllableFactor * stats.avgWordSyllables
-
-  return score
-
-FLESCHKINCAIDCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
-  Language.EN: (-15.59, 0.39, 11.8)
-}
-
-def fleschKincaid(stats: Text_Stats, lang: Language) -> float:
-  if stats.wordCount == 0 or stats.sentenceCount == 0:
-    return 0
-
-  try:
-    base, sentenceFactor, syllableFactor = FLESCHKINCAIDCOEFFICIENTS[lang]
-  except KeyError as error:
-    raise ValueError(f"Flesch-Kincaid Grade level if defined only for English language. "
-                     f"Unsupposed language: {lang}") from error
-  score = sentenceFactor * stats.avgSentenceLength + syllableFactor * stats.avgWordSyllables + base
 
   return score
 

@@ -1,13 +1,13 @@
-from langdetect import language
 from textblob import TextBlob
 from domain.types import Polarity
-from googletrans import Translator
 from deep_translator import GoogleTranslator
+from functools import lru_cache
 
-translator = Translator()
+translator = GoogleTranslator(source='auto', target='en')
 
+@lru_cache(maxsize=None)
 def translateToEnglish(text: str) -> str:
-    return GoogleTranslator(source='auto', target='en').translate(text)
+    return translator.translate(text)
 
 def analyzeSentimentTextblob(text: str) -> tuple[Polarity, float]:
     translatedText = translateToEnglish(text)
