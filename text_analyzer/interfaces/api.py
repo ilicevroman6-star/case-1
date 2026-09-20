@@ -1,13 +1,13 @@
+import redis
+from application.use_cases import analyze_batch, analyze_text
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from application.use_cases import analyze_text, analyze_batch
-from infrastructure.syllable_counters import get_syllable_counter
-from infrastructure.sentiment import analyze_sentiment_textblob
-from infrastructure.language_detector import detect_language
 from infrastructure.cache import get_cached_result, set_cached_result
-import redis
+from infrastructure.language_detector import detect_language
+from infrastructure.sentiment import analyze_sentiment_textblob
+from infrastructure.syllable_counters import get_syllable_counter
+from pydantic import BaseModel
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")

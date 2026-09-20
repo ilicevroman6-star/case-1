@@ -28,24 +28,6 @@ def fleschIndex(stats: Text_Stats, lang: Language) -> float:
       raise ValueError('Unknown language') from error
 
   score = base - sentenceFactor * stats.avgSentenceLength - syllableFactor * stats.avgWordSyllables
-
-  return score
-
-FLESCHKINCAIDCOEFFICIENTS: dict[Language, tuple[float,float,float]] = {
-  Language.EN: (-15.59, 0.39, 11.8)
-}
-
-def fleschKincaid(stats: Text_Stats, lang: Language) -> float:
-  if stats.wordCount == 0 or stats.sentenceCount == 0:
-    return 0
-
-  try:
-    base, sentenceFactor, syllableFactor = FLESCHKINCAIDCOEFFICIENTS[lang]
-  except KeyError as error:
-    raise ValueError(f"Flesch-Kincaid Grade level if defined only for English language. "
-                     f"Unsupposed language: {lang}") from error
-  score = sentenceFactor * stats.avgSentenceLength + syllableFactor * stats.avgWordSyllables + base
-
   return score
 
 def interpretFlesch(score: float, lang: Language) -> str:
