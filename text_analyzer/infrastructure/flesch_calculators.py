@@ -31,7 +31,7 @@ def fleschIndex(stats: Text_Stats, lang: Language) -> float:
   return score
 
 def interpretFlesch(score: float, lang: Language) -> str:
-  if 90 < fleschIndex(score, lang) < 100:
+  if 90 < fleschIndex(score, lang):
     return 'Easy'
   elif 60 < fleschIndex(score, lang) < 89:
     return 'Medium'
