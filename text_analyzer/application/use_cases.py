@@ -3,9 +3,10 @@ from domain.types import Text_Stats, Analysis_Result, Language, Polarity
 from domain.interfaces import Syllable_Counter, Sentiment_Analyzer, Language_Detector
 from infrastructure.language_detector import detectLanguage
 from infrastructure.syllable_counters import splitSentences, splitWords, getSyllableCounter, countSyllablesEn
-from infrastructure.sentiment import analyzeSentimentTextblob
+from infrastructure.sentiment import analyzeSentimentTextblob, translateToEnglish
 from infrastructure.syllable_counters import getSyllableCounter
-from functools import lru_cache
+from infrastructure.additional_metrics import lexicalDiversity, rareWordDensity
+from collections import Counter
 
 def computeStats(text: str, syllableCounter: Syllable_Counter) -> Text_Stats:
   sentences = splitSentences(text)
@@ -37,9 +38,9 @@ def fleschKincaid(text: str) -> float:
 
 maxsize=None
 def analyzeText(text: str,
-                 lang_detector: Language_Detector,
-                 syllableCounter: Syllable_Counter,
-                 sentimentAnalyzer: Sentiment_Analyzer) -> Analysis_Result:
+                 lang_detector=detectLanguage,
+                 syllableCounter=getSyllableCounter,
+                 sentimentAnalyzer=Sentiment_Analyzer) -> Analysis_Result:
 
   lang = lang_detector(text)
   lang = detectLanguage(text)
@@ -48,12 +49,12 @@ def analyzeText(text: str,
   flesch = fleschIndex(stats, lang)
 
   try:
-    flesch_kinc = fleschKincaid(stats, lang)
+    flesch_kinc = fleschKincaid(translateToEnglish(text))
   except ValueError:
     flesch_kinc = None
-  flesch_kinc = fleschKincaid(text)
   interpret = interpretFlesch(stats, lang)
-
+  lexical_div = lexicalDiversity(text)
+  rare = rareWordDensity(text, freqDict=Counter(text))
   polar, subj = analyzeSentimentTextblob(text)
 
   return Analysis_Result(
@@ -63,8 +64,8 @@ def analyzeText(text: str,
     interpretation=interpret,
     polarity=polar.value,
     subjectivity=subj,
-    lexicalDiversity=0.0,
-    rareWordDensity=0.0,
+    lexicalDiversity=lexical_div,
+    rareWordDensity=rare,
     stats=stats,
   )
 
