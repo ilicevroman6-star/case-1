@@ -1,0 +1,29 @@
+repos:
+  # Base checks.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-toml
+
+  # ISORT (sort imports).
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--line-length=120"]
+
+  # MYPY (check the types).
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - "pydantic"
+          - "redis"
+          - "types-redis"
+        args: ["--ignore-missing-imports"]

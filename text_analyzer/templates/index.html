@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Настройка отображения веб-страницы.-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Настройка цвета фона по hex (синий).-->
+    <meta name="theme-color" content="#4285f4">
+    <!-- Защита от xss-атак.-->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+    <title>Анализатор текста</title>
+</head>
+<body>
+    <h2>📝 Анализатор текста</h2>
+    <p>Введите текст ниже, чтобы узнать язык,
+        провести анализ тональности и дать оценку удобочитаемости:</p>
+    <textarea id="textInput" placeholder="Введите ваш текст здесь..."></textarea>
+    <!-- Создание кнопки.-->
+    <button id="analyzeBtn">Анализировать</button>
+
+    <!-- Контейнер, содержащий результат анализа.-->
+    <div id="result">
+        <h3>📊 Результат анализа:</h3>
+        <pre id="output"></pre>
+    </div>
+    <script src="{{ url_for('static', path='script.js') }}"></script>
+</body>
+</html>

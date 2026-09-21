@@ -1,26 +1,35 @@
-import asyncio
-
-from langdetect import language
 from textblob import TextBlob
-from domain.types import Polarity
-from googletrans import Translator
+from domain.types import Polarity, Language
+from functools import lru_cache
+from deep_translator import MyMemoryTranslator
+from infrastructure.language_detector import detectLanguage
 
-translator = Translator()
+LANG_CODES = {
+    Language.RU: "ru-RU",
+    Language.DE: "de-DE",
+    Language.FR: "fr-FR",
+    Language.EN: "en-GB",
+}
 
-async def translate_to_english(text: str) -> str:
-    async with Translator() as translator:
-        translated = await translator.translate(text, dest="en")
-    return translated.text
+@lru_cache(maxsize=None)
+def translateToEnglish(text: str) -> str:
+  source_lang = detectLanguage(text)
+  if source_lang == Language.EN:
+    return text
+  translator = MyMemoryTranslator(source = LANG_CODES[source_lang], target='en-GB')
+  return translator.translate(text)
 
-def analyze_sentiment_textblob(text: str) -> tuple[Polarity, float]:
-    translated_text = asyncio.run(translate_to_english(text))
-    blob = TextBlob(translated_text)
-    polarity = blob.sentiment.polarity
-    subjectivity = blob.sentiment.subjectivity
-    if polarity > 0.1:
-        p = Polarity.POSITIVE
-    elif polarity < -0.1:
-        p = Polarity.NEGATIVE
-    else:
-        p = Polarity.NEUTRAL
-    return p, subjectivity
+def analyzeSentimentTextblob(text: str) -> tuple[Polarity, float]:
+  translatedText = translateToEnglish(text)
+  print(translatedText)
+  blob = TextBlob(translatedText)
+  polarity = blob.sentiment.polarity
+  subjectivity = blob.sentiment.subjectivity
+
+  if polarity > 0.1:
+    p = Polarity.POSITIVE
+  elif polarity < -0.1:
+    p = Polarity.NEGATIVE
+  elif -0.1 <= polarity <= 0.1:
+    p = Polarity.NEUTRAL
+  return p, subjectivity

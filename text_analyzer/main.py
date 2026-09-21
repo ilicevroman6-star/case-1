@@ -1,57 +1,80 @@
-from application.use_cases import compute_stats, analyze_text
-from domain.interfaces import LanguageDetector, SentimentAnalyzer
-from infrastructure.flesch_calculators import flesch_index, flesch_kincaid, interpret_flesch
-from infrastructure.language_detector import detect_language
-from infrastructure.syllable_counters import get_syllable_counter
-from infrastructure.sentiment import analyze_sentiment_textblob
+from collections import Counter
+from application.use_cases import computeStats, analyzeText, fleschKincaid
+from domain.interfaces import Language_Detector, Sentiment_Analyzer, Syllable_Counter
+from infrastructure.flesch_calculators import fleschIndex, interpretFlesch
+from infrastructure.language_detector import detectLanguage
+from infrastructure.syllable_counters import getSyllableCounter
+from infrastructure.sentiment import analyzeSentimentTextblob, translateToEnglish
+from infrastructure.validation import validateText
+from infrastructure.additional_metrics import lexicalDiversity, rareWordDensity
+from fastapi import FastAPI
+from logging_config import setup_logging
+from structlog import get_logger
+from prometheus_client import make_asgi_app
+from metrics import REQUEST_COUNT, REQUEST_LATENCY, ERROR_COUNT
+
+setup_logging()
+logger = get_logger()
+app = FastAPI(
+  title="Text Analysis Service",
+  version="0.1.0",
+  description="Synchronous text analysis service"
+)
+
+metrics_app = make_asgi_app()
+app.mount('/metrics', metrics_app)
+
+@app.get("/health")
+async def health():
+  REQUEST_COUNT.labels(method='GET', endpoint='/health', status='200').inc()
+  logger.info("Health check", service="text-analyzer")
+  return {"status": "ok", "service": "text-analyzer"}
 
 def main() -> None:
-  text = "Я не могу поверить, что он так со мной поступил. Это просто низко и подло. После всего, что мы пережили, он решил меня предать. Такое ощущение, что у него вообще нет никаких принципов"
-
-  try:
-    language = detect_language(text)
-    counter = get_syllable_counter(language)
-
-    stats = compute_stats(
-      text=text,
-      syllable_counter=counter,
-    )
-
-    flesch = flesch_index(stats, language)
-    interpret = interpret_flesch(stats, language)
-    polar, subj = analyze_sentiment_textblob(text)
-
+  text = 'Я ненавижу этот мир'
+  if validateText(text):
     try:
-      flesch_kin = flesch_kincaid(stats, language)
-    except ValueError:
-      flesch_kin = None
+      language = detectLanguage(text)
+      counter = getSyllableCounter(language)
 
-    if language.value == 1:
-      print("Language: English")
-    if language.value == 2:
-      print("Language: Russian")
-    if language.value == 3:
-      print("Language: German")
-    if language == 4:
-      print("Language: French")
+      stats = computeStats(
+        text=text,
+        syllableCounter=counter,
+      )
 
-    print(f"Count of sentences: {stats.sentence_count}")
-    print(f"Count of words: {stats.word_count}")
-    print(f"Count of syllables: {stats.syllable_count}")
-    print("Average sentence length: "f"{stats.avg_sentence_length:.2f} words")
-    print("Average syllable count in words: "f"{stats.avg_word_syllables:.2f}")
-    print("Flesch index: "f"{flesch:.2f}")
-    if flesch_kin is not None:
-      print("Flesch-Kincaid index: "f"{flesch_kin:.2f}")
-    else:
-      print("Flesch-Kincaid index: unavailable")
-    print("Interpret Flesch: "f"{interpret}")
-    print("Polarity: "f"{polar.value}")
-    print("Subjectivity: "f"{subj}")
+      flesch = fleschIndex(stats, language)
+      interpret = interpretFlesch(stats, language)
+      polar, subj = analyzeSentimentTextblob(text)
+      translatedText = translateToEnglish(text)
+      flesch_kin = fleschKincaid(translatedText)
 
-  except ValueError as error:
-    print(f"Error: {error}")
+      if language.value == 1:
+        print("Language: English")
+      if language.value == 2:
+        print("Language: Russian")
+      if language.value == 3:
+        print("Language: German")
+      if language.value == 4:
+        print("Language: French")
 
+      print(f"Count of sentences: {stats.sentenceCount}")
+      print(f"Count of words: {stats.wordCount}")
+      print(f"Count of syllables: {stats.syllableCount}")
+      print("Average sentence length: "f"{stats.avgSentenceLength:.2f}")
+      print("Average syllable count in words: "f"{stats.avgWordSyllables:.2f}")
+      print("Flesch index: "f"{flesch:.2f}")
+      if flesch_kin is not None:
+        print("Flesch-Kincaid index: "f"{flesch_kin:.2f}")
+      else:
+        print("Flesch-Kincaid index: unavailable")
+      print("Interpret Flesch: "f"{interpret}")
+      print("Polarity: "f"{polar.value}")
+      print("Subjectivity: "f"{subj}")
+      print("Lexical Diversity: "f"{lexicalDiversity(text)}")
+      print("Rare word density: "f"{rareWordDensity(text, freqDict=Counter(text))}")
+
+    except ValueError as error:
+      print(f"Error: {error}")
 
 if __name__ == "__main__":
     main()
