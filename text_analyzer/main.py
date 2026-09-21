@@ -8,16 +8,27 @@ from infrastructure.sentiment import analyzeSentimentTextblob, translateToEnglis
 from infrastructure.validation import validateText
 from infrastructure.additional_metrics import lexicalDiversity, rareWordDensity
 from fastapi import FastAPI
+from logging_config import setup_logging
+from structlog import get_logger
+from prometheus_client import make_asgi_app
+from metrics import REQUEST_COUNT, REQUEST_LATENCY, ERROR_COUNT
 
+setup_logging()
+logger = get_logger()
 app = FastAPI(
-    title="Text Analysis Service",
-    version="0.1.0",
-    description="Synchronous text analysis service"
+  title="Text Analysis Service",
+  version="0.1.0",
+  description="Synchronous text analysis service"
 )
+
+metrics_app = make_asgi_app()
+app.mount('/metrics', metrics_app)
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "text-analyzer"}
+  REQUEST_COUNT.labels(method='GET', endpoint='/health', status='200').inc()
+  logger.info("Health check", service="text-analyzer")
+  return {"status": "ok", "service": "text-analyzer"}
 
 def main() -> None:
   text = 'Я ненавижу этот мир'
