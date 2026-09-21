@@ -1,18 +1,23 @@
 import redis
-from application.use_cases import analyze_batch, analyze_text
+from application.use_cases import analyzeBatch, analyzeText
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from infrastructure.cache import get_cached_result, set_cached_result
-from infrastructure.language_detector import detect_language
-from infrastructure.sentiment import analyze_sentiment_textblob
-from infrastructure.syllable_counters import get_syllable_counter
+from infrastructure.language_detector import detectLanguage
+from infrastructure.sentiment import analyzeSentimentTextblob
+from infrastructure.syllable_counters import getSyllableCounter
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.encoders import jsonable_encoder
+
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-redis_client = redis.Redis.from_url("redis://localhost")
+templates = Jinja2Templates(directory='templates')
+
+redis_client = redis.Redis.from_url('redis://localhost')
 
 class TextRequest(BaseModel):
   text: str
@@ -20,33 +25,35 @@ class TextRequest(BaseModel):
 class BatchRequest(BaseModel):
   texts: list[str]
 
-@app.get("/", response_class=HTMLResponse)
+@app.get('/', response_class=HTMLResponse)
 def read_root(request: Request):
   return templates.TemplateResponse(
     request=request,
-    name="index.html",
-    context={}  # Если нужно передать другие переменные, пишите их сюда
+    name='index.html',
+    context={}
   )
 
-@app.post("/analyze")
-def analyze_endpoint(request: TextRequest):
+@app.post('/analyze')
+def analyzeEndpoint(request: TextRequest):
   text = request.text
   # проверка кэша
   cached = get_cached_result(redis_client, text)
   if cached:
     return cached
   # определение языка
-  lang = detect_language(text)
-  counter = get_syllable_counter(lang)
+  lang = detectLanguage(text)
+  counter = getSyllableCounter(lang)
   try:
-    result = analyze_text(text, detect_language, counter, analyze_sentiment_textblob)
+    result = analyzeText(text, detectLanguage, counter, analyzeSentimentTextblob)
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
   set_cached_result(redis_client, text, result)
-  return result.to_dict()
+  # Вместо return result.model_dump() напишите:
+  return jsonable_encoder(result)
 
-@app.post("/analyze-batch")
-def analyze_batch_endpoint(request: BatchRequest):
+
+@app.post('/analyze-batch')
+def analyzeBatchEndpoint(request: BatchRequest):
   # можно также использовать кэш для каждого текста
   results = []
   for text in request.texts:
@@ -54,9 +61,9 @@ def analyze_batch_endpoint(request: BatchRequest):
     if cached:
       results.append(cached)
     else:
-      lang = detect_language(text)
-      counter = get_syllable_counter(lang)
-      result = analyze_text(text, detect_language, counter, analyze_sentiment_textblob)
+      lang = detectLanguage(text)
+      counter = getSyllableCounter(lang)
+      result = analyzeText(text, detectLanguage, counter, analyzeSentimentTextblob)
       set_cached_result(redis_client, text, result)
-      results.append(result.to_dict())
+      results.append(jsonable_encoder(result))
   return results

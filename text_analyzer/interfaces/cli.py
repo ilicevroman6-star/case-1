@@ -1,10 +1,10 @@
 import json
 
 import click
-from application.use_cases import analyze_text
-from infrastructure.language_detector import detect_language
-from infrastructure.sentiment import analyze_sentiment_textblob
-from infrastructure.syllable_counters import get_syllable_counter
+from application.use_cases import analyzeText
+from infrastructure.language_detector import detectLanguage
+from infrastructure.sentiment import analyzeSentimentTextblob
+from infrastructure.syllable_counters import getSyllableCounter
 
 
 @click.command()
@@ -21,9 +21,9 @@ def main(text, file, batch_file, output):
     # ...
   if not text:
     raise click.UsageError('Either --text, --file, or --batch-file required.')
-  lang = detect_language(text)
-  counter = get_syllable_counter(lang)
-  result = analyze_text(text, detect_language, counter, analyze_sentiment_textblob)
+  lang = detectLanguage(text)
+  counter = getSyllableCounter(lang)
+  result = analyzeText(text, detectLanguage, counter, analyzeSentimentTextblob)
   out_json = json.dumps(result.to_dict(), indent=2)
   if output:
     output.write(out_json)

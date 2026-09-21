@@ -16,14 +16,13 @@
         провести анализ тональности и дать оценку удобочитаемости:</p>
     <textarea id="textInput" placeholder="Введите ваш текст здесь..."></textarea>
     <!-- Создание кнопки.-->
-    <button onclick="analyzeText()">Анализировать</button>
-    <script>
+    <button id="analyzeBtn">Анализировать</button>
 
-    </script>
     <!-- Контейнер, содержащий результат анализа.-->
     <div id="result">
         <h3>📊 Результат анализа:</h3>
         <pre id="output"></pre>
     </div>
+    <script src="{{ url_for('static', path='script.js') }}"></script>
 </body>
 </html>
