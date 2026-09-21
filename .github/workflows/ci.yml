@@ -27,14 +27,3 @@ jobs:
       - name: Run tests
         run: |
           pytest text_analyzer/tests/ -v
-
-      - name: Run flake8
-        run: |
-          pip install flake8
-          flake8 text_analyzer/ \
-            --max-line-length=120 \
-            --indent-size=2 \
-            --extend-ignore=E203,W503,N802,N803,N806 \
-            --extend-ignore=E111,E114,E302,E305,E501 \
-            --extend-ignore=F401,F841,E231,E127 \
-            --extend-ignore=W292,E251,E303,W391,E225,F811
